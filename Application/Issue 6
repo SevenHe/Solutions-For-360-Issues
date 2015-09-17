@@ -1,0 +1,4 @@
+
+#use sys..and cpu.. together
+#sysinfo_recorder is a shell script.
+#cpu_recorder is a executable file that you don't use it explicitly.

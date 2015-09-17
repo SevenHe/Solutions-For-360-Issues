@@ -20,7 +20,7 @@ exit 0
 }
 
 #start
-# This can be expanded for test whether the job has been stopped or started.
+# This can be expanded for testing whether the job has been stopped or started.
 if [ "$#" = "2" ];then
 	case $2 in
 		"--start")

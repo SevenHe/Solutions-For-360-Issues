@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-# This is my first time to use Perl, i used to use Python.
 # base on the "ipconfig".
 use strict;
 use Sys::HostAddr;

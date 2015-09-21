@@ -1,16 +1,29 @@
 #!/bin/bash
 # description: cpu_recorder, just record 2 days for now. 
 # save the records in the RECORDS_FILE by using sar.
-# Check: ps -e|grep cpu_recorder.
-EXEC_PATH=/home/seven0vm/Code
+# if this want to be the service, must be placed into /etc/init.d
+# so it can use status.
+EXEC_PATH=./recorder/daemon
 EXEC=cpu_recorder
 PID_FILE=/var/run/cpu_recorder.pid
-DAEMON=/home/seven0vm/Code/cpu_recorder
-RECORDS_FILE=/home/seven0vm/Code/records.log
+DAEMON=./recorder/daemon/cpu_recorder
+# the log file is in the ./records.log!
+RECORDS_FILE=./recorder/daemon/records.log
 
-
-if ! [ -x $EXEC_PATH/$EXEC ] ; then
-    echo "ERROR: $EXEC_PATH/$EXEC not found"
+if ! [ -f $EXEC_PATH/$EXEC ];then
+	mkdir -p $EXEC_PATH &> rcd_install.log
+	find $EXEC &> rcd_install.log
+	if [ $? = "0" ];then
+		mv $EXEC $EXEC_PATH/ &> rcd_install.log
+	else
+		echo "Can't find the service file:$EXEC."
+	fi
+	# if there is no problem, delete the log.
+	rm rcd_install.log
+fi
+	
+if ! [ -x $EXEC_PATH/$EXEC ];then
+    echo "The program needs to be granted executable permission."
     exit 1
 fi
 
@@ -29,20 +42,20 @@ stop()
 {
     echo "Stoping $EXEC ..."
     killall $DAEMON > /dev/null
-    usleep 100
-    echo "Shutting down $EXEC: [ OK ]"
+    if [ $? = "0" ];then
+    	sleep 1
+    	echo "Shutting down $EXEC: [ OK ]"
+    fi
     
 }
 
 start()
 {
     echo "Starting $EXEC ..."
-    if [ -e $RECORDS_FILE ];then
+    if [ -e $RECORDES_FILE ];then
     	$DAEMON > /dev/null 
     	sleep 1
     	echo "Starting $EXEC: [ OK ]"
-    else
-    	echo "ERROR!"
     fi
 }
 
@@ -63,8 +76,12 @@ case "$1" in
         restart
         ;;
     status)
-        status -p $PID_FILE $DAEMON
-    ;;
+    	echo '====================================='
+    	ps -e|grep cpu_recorder
+    	if ! [ $? = "0" ]; then
+    		echo "There is no recorder starting!"
+    	fi
+    	;;
     *)
         echo "Usage: service $EXEC {start|stop|restart|status}"
         exit 1
